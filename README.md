@@ -4,12 +4,13 @@ Preprint available at: https://doi.org/10.1101/2021.08.19.456946
 
 ## File descriptions
 ### Data
-- DataSheet_Mal_May18.csv: table of raw data of measures from the field
-- PAs.csv: table with planar area and perimeter of the nubbins as obtained through outlining and scaling of the pictures taken in the field. Traits that derive from those measures are also here.
-- traits.csv: table 
+- **DataSheet_Mal_May18.csv**: table of raw data of measures from the field
+- **env/**: directory with all the environmental data for analysis with **environment.R**
+- **nubbin_outlines/**: directory with all the outlines of the nubbins, from which morphological traits are computed with **2.get_PAs.csv**
 
 ### R
-- environment.r: analysis of environmental parameters
-- prepare_data_tables.R: code for preparing data table for analysis
-- model selection with random effects.R: model fitting and selection, with code for producing relative figures and tables
-- figs.R: code for morphospace figures
+- **1.environment.R**: analysis of environmental parameters
+- **2.get_PAs.R**: get morphological traits of the nubbins
+- **3.prepare_data_tables.R**: handle data to make tables for model fitting
+- **4.model_fitting.R**:model fitting and selection for each trait and the morphospace + code for relative figures and tables 
+- **5.PCAfigs.R**: code for morphospace figures
