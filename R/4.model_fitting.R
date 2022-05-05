@@ -8,6 +8,7 @@ library(GGally)
 library(nlme)
 library(ggpubr)
 library(broom.mixed)
+library(gridExtra)
 
 #### themes ####
 
@@ -197,6 +198,8 @@ plot(mlmes)
 plot(mlme1)
 
 
+### figure 2 ####
+
 mortality_full <- rbind(cbind(var = "mortality", 
                               as.data.frame( tidy(mlme1,conf.int=TRUE,effects="fixed"))[,-1]))
 mortality_sel <- rbind(cbind(var = "mortality", 
@@ -240,25 +243,27 @@ ggplot()+
   labs(y= "Response variable")+
   theme(panel.grid = element_blank(),strip.text.x = element_text(size = 14), panel.grid.major.y = element_line(colour="grey90", size=0.5),legend.position="none", 
         axis.text = element_text(size = 12), axis.title = element_text(size = 15))+
-  themeRNf
+  themeRN
+ggsave("figs/mortality_full_estim.png", width =15, height = 12, units ="cm",  dpi = 300)
 
-ggplot()+
+### fig2b
+fig2b <- ggplot()+
   geom_linerange(data=mortality_sel,
-                 mapping=aes(y=reorder(Term_labels,desc(Term_order)), xmin=conf.low, xmax=conf.high), size = 3, col = "grey80")+
+                 mapping=aes(y=reorder(Term_labels,desc(Term_order)), xmin=conf.low, xmax=conf.high), size = 2, col = "grey80")+
   geom_point(data=mortality_sel,
-             mapping=aes(y=Term_labels, x=estimate, col = factor(sig)), size = 4)+
+             mapping=aes(y=Term_labels, x=estimate, col = factor(sig)), size = 3)+
   xlab("Estimates with 95% CI") +
   scale_colour_manual(values = c("grey60", "grey20"))+
   # Big bold line at y=0
   geom_vline(xintercept=0,size=1, alpha=0.3, linetype="dashed")+
   theme_minimal() +
-  labs(y= "")+
-  theme(panel.grid = element_blank(),strip.text.x = element_text(size = 18), 
+  themeRN+
+  theme(panel.grid = element_blank(),strip.text.x = element_text(size = 11), 
         panel.grid.major.y = element_line(colour="grey90", size=0.5),legend.position="none", 
-        axis.text = element_text(size = 18), axis.title = element_text(size = 18),axis.title.x = element_blank())+
-  themeRNf
-### fig2b
-ggsave("figs/mortality_sel_estim.png", width =11, height = 6, units ="cm",  dpi = 300)
+        axis.text = element_text(size = 10), axis.title = element_text(size = 11),axis.title.x = element_blank(), axis.title.y = element_blank())
+
+
+#ggsave("figs/mortality_sel_estim.png", width =11, height = 6, units ="cm",  dpi = 300)
 
 mort_prob <- cbind(mlmes@frame, mlmes@resp$eta)
 genus <- c("A"="Acropora sp.", "P"="Porites sp.")
@@ -269,71 +274,157 @@ cols <- c("Shallow" = "dodgerblue4", "Deep" = "cyan3")
 #mort_prob$Destination <- mort_prob$Dest_long
 mort_prob$pred <- predict(mlmes)
 
-ggplot(data=mort_prob)+
-  geom_boxplot(aes(fill=Destination, x=Genus_long, col = Destination, y=pred),outlier.shape = NA, width = .4, alpha = .4, size = 1.3)+
-  geom_point(aes(col = Destination, x=Genus_long, y=pred), size =1.1,
-             position=position_jitterdodge(jitter.width = .2,
-                                           jitter.height = 0,
-                                           dodge.width =.4))+
-  theme_bw()+
-  scale_fill_manual(values = cols)+
-  scale_colour_manual(values = cols)+
-  ylab("Survival probability")+
-  theme(text = element_text(size = 18),
-        axis.title.x = element_blank(),
-        axis.title.y = element_text(size = 18),
-        axis.text.x = element_text(vjust = 0.5, face = "italic"),
-        legend.title = element_text(size = 16),
-        legend.text = element_text(size = 14),
-        panel.grid = element_blank(),
-        strip.text = element_text(size = 16, color = "white"),
-        strip.background = element_rect(fill="grey40"),
-        plot.title = element_text(size = 16))
 ## fig 2c
-ggsave("figs/mortality_prob_estim.png", width =15, height = 7, units ="cm",  dpi = 300)
-
-str(mort_prob)
-ggplot(data=mort_prob)+
-geom_boxplot(aes(fill=Destination, x=Genus_long, col = Destination, y=mlmes@resp$mu),outlier.shape = NA, width = .4, alpha = .4, size = 1.3)+
-geom_point(aes(col = Destination, x=Genus_long, y=mlmes@resp$mu), binaxis='y', size =1.1, stackdir='center',
-position=position_jitterdodge(jitter.width = .2,
-jitter.height = 0,
-dodge.width =.4))+
-theme_bw()+
-scale_fill_manual(values = cols)+
-scale_colour_manual(values = cols)+
-ylab("Survival probability")+
-theme(text = element_text(size = 18),
-axis.title.x = element_blank(),
-axis.title.y = element_text(size = 18),
-axis.text.x = element_text(vjust = 0.5, face = "italic"),
-legend.title = element_blank(),
-legend.text =element_blank(),
-panel.grid = element_blank(),
-strip.text = element_text(size = 16, color = "white"),
-strip.background = element_rect(fill="grey40"),
-plot.title = element_text(size = 16))
-
-ggplot(data=mort_prob)+
-  geom_boxplot(aes(fill=Destination, x=Genus_long, col = Destination, y=mlmes@resp$mu),outlier.shape = NA, width = .4, alpha = .4, size = 1.3)+
-  geom_point(aes(col = Destination, x=Genus_long, y=mlmes@resp$mu), binaxis='y', size =1.1, stackdir='center',
+fig2c <- ggplot(data=mort_prob)+
+  geom_boxplot(aes(fill=Destination, x=Genus_long, col = Destination, y=pred),outlier.shape = NA, width = .4, alpha = .4, size = 1)+
+  geom_point(aes(col = Destination, x=Genus_long, y=pred), size =0.5,
              position=position_jitterdodge(jitter.width = .2,
                                            jitter.height = 0,
                                            dodge.width =.4))+
   theme_bw()+
-  scale_fill_manual(values = cols)+
-  scale_colour_manual(values = cols)+
+  scale_fill_manual(guide = FALSE, values = cols)+
+  scale_colour_manual(guide = FALSE,values = cols)+
   ylab("Survival probability")+
-  theme(text = element_text(size = 18),
+  theme(text = element_text(size = 10),
         axis.title.x = element_blank(),
-        axis.title.y = element_text(size = 18),
-        axis.text.x = element_text(vjust = 0.5, face = "italic"),
-        legend.title = element_text(size = 16),
-        legend.text = element_text(size = 14),
+        axis.title.y = element_text(size = 11),
+        axis.text.x = element_text(vjust = 0.5, face = "italic", size = 10),
+        axis.text.y = element_text(vjust = 0.5, size = 10),
+        legend.title = element_blank(),
+        legend.text = element_blank(),
         panel.grid = element_blank(),
-        strip.text = element_text(size = 16, color = "white"),
+        strip.text = element_text(size = 11, color = "white"),
         strip.background = element_rect(fill="grey40"),
-        plot.title = element_text(size = 16))
+        plot.title = element_text(size = 11))
+
+# ggsave("figs/mortality_prob_estim.png", width =15, height = 7, units ="cm",  dpi = 300)
+# 
+# str(mort_prob)
+# ggplot(data=mort_prob)+
+# geom_boxplot(aes(fill=Destination, x=Genus_long, col = Destination, y=mlmes@resp$mu),outlier.shape = NA, width = .4, alpha = .4, size = 1.3)+
+# geom_point(aes(col = Destination, x=Genus_long, y=mlmes@resp$mu), binaxis='y', size =1.1, stackdir='center',
+# position=position_jitterdodge(jitter.width = .2,
+# jitter.height = 0,
+# dodge.width =.4))+
+# theme_bw()+
+# scale_fill_manual(values = cols)+
+# scale_colour_manual(values = cols)+
+# ylab("Survival probability")+
+# theme(text = element_text(size = 18),
+# axis.title.x = element_blank(),
+# axis.title.y = element_text(size = 18),
+# axis.text.x = element_text(vjust = 0.5, face = "italic"),
+# legend.title = element_blank(),
+# legend.text =element_blank(),
+# panel.grid = element_blank(),
+# strip.text = element_text(size = 16, color = "white"),
+# strip.background = element_rect(fill="grey40"),
+# plot.title = element_text(size = 16))
+# 
+# ggplot(data=mort_prob)+
+#   geom_boxplot(aes(fill=Destination, x=Genus_long, col = Destination, y=mlmes@resp$mu),outlier.shape = NA, width = .4, alpha = .4, size = 1.3)+
+#   geom_point(aes(col = Destination, x=Genus_long, y=mlmes@resp$mu), binaxis='y', size =1.1, stackdir='center',
+#              position=position_jitterdodge(jitter.width = .2,
+#                                            jitter.height = 0,
+#                                            dodge.width =.4))+
+#   theme_bw()+
+#   scale_fill_manual(values = cols)+
+#   scale_colour_manual(values = cols)+
+#   ylab("Survival probability")+
+#   theme(text = element_text(size = 18),
+#         axis.title.x = element_blank(),
+#         axis.title.y = element_text(size = 18),
+#         axis.text.x = element_text(vjust = 0.5, face = "italic"),
+#         legend.title = element_text(size = 16),
+#         legend.text = element_text(size = 14),
+#         panel.grid = element_blank(),
+#         strip.text = element_text(size = 16, color = "white"),
+#         strip.background = element_rect(fill="grey40"),
+#         plot.title = element_text(size = 16))
+
+
+
+## fig2a
+Destination.labs <- c("Deep treatment", "Shallow treatment")
+names(Destination.labs) <- c("D", "S")
+
+mort$racklab <- NA
+mort$racklab[mort$Rack == 10] <- "Rack D1"
+mort$racklab[mort$Rack == 3] <- "Rack D2"
+mort$racklab[mort$Rack == 5] <- "Rack D3"
+mort$racklab[mort$Rack == 7] <- "Rack D4"
+mort$racklab[mort$Rack == 8] <- "Rack D5"
+mort$racklab[mort$Rack == 1] <- "Rack S1"
+mort$racklab[mort$Rack == 2] <- "Rack S2"
+mort$racklab[mort$Rack == 4] <- "Rack S3"
+mort$racklab[mort$Rack == 6] <- "Rack S4"
+mort$racklab[mort$Rack == 9] <- "Rack S5"
+mort$racklab <- as.factor(mort$racklab)
+
+dim2d$racklab <- NA
+dim2d$racklab[dim2d$Rack == 10] <- "Rack D1"
+dim2d$racklab[dim2d$Rack == 3] <- "Rack D2"
+dim2d$racklab[dim2d$Rack == 5] <- "Rack D3"
+dim2d$racklab[dim2d$Rack == 7] <- "Rack D4"
+dim2d$racklab[dim2d$Rack == 8] <- "Rack D5"
+dim2d$racklab[dim2d$Rack == 1] <- "Rack S1"
+dim2d$racklab[dim2d$Rack == 2] <- "Rack S2"
+dim2d$racklab[dim2d$Rack == 4] <- "Rack S3"
+dim2d$racklab[dim2d$Rack == 6] <- "Rack S4"
+dim2d$racklab[dim2d$Rack == 9] <- "Rack S5"
+dim2d$racklab <- as.factor(dim2d$racklab)
+
+
+
+
+
+surv <- ggplot(mort,aes(Species, fill = Origin))+
+  geom_bar(width = .9, alpha= .2)+
+  geom_bar(data = dim2d, aes(Species, fill = Origin), alpha = 1, width = .6)+
+  theme_minimal()+
+  ylab("Survival (count)")+
+  scale_fill_manual(guide = FALSE, values = c("dodgerblue4", "cyan3"))+
+  facet_wrap(Destination~racklab, nrow = 2,
+             labeller = labeller(Destination = Destination.labs))+
+  scale_y_continuous(breaks=c(0,2,4,6,8), limits = c(0, 10))+
+  theme(text = element_text(size = 10),
+        axis.title.x = element_text(size = 11),
+        axis.title.y = element_text(size = 11),
+        axis.text = element_text(size = 10),
+        axis.text.x = element_text(vjust = 0.5),
+        legend.title = element_blank(),
+        legend.text = element_blank(),
+        panel.grid = element_blank(),
+        strip.text = element_text(size = 11))
+
+
+#png("Surv.png",width = 600, height = 400)
+print(surv)
+dev.off()
+
+pdf("figs/Figure2.pdf",width = 6.6, height = 6.4)
+#Fig2 <- 
+  grid.arrange(
+  grobs = list(surv, fig2b, fig2c),
+  widths = c(1,5,1,5,1),
+  layout_matrix = rbind(c(1, 1, 1,  1, 1),
+                        c(1, 1, 1, 1, 1),
+                        c(1, 1, 1, 1, 1),
+                        c(1, 1, 1, 1, 1),
+                        c(1, 1, 1, 1, 1),
+                        c(1, 1, 1, 1, 1),
+                        c(1, 1, 1, 1, 1),
+                        c(1, 1, 1, 1, 1),
+                        c(NA,NA,NA,NA,NA),
+                        c(2,2,NA,3,3),
+                        c(2,2,NA,3,3),
+                        c(2,2,NA,3,3),
+                        c(2,2,NA,3,3),
+                        c(2,2,NA,3,3))
+)
+dev.off()
+
+
 
 ####trait model selection ####
 ### D ####
@@ -506,6 +597,8 @@ Wlmes <- W$m10
 
 #### PA ####
 ## Create explicit nested factors
+
+dim2dPA <- read.csv("output/dim2dPA.csv")
 PAlm <- gls(data = dim2dPA, lrA ~ Origin*Destination*Genus)
 PAlme1 <- lme(data = dim2dPA, lrA ~ Origin*Destination*Genus, 
              random = list(~ 1|Species, ~ 1|sourceGen,~ 1|Rack))
@@ -535,14 +628,14 @@ PA <- get_AICs(data, response, random)
 PA$AICs[PA$AICs$AIC == min(PA$AICs$AIC), ]
 PAlmes <- PA$m7
 
-png("PArn 2d.png",width = 400, height = 400)
-print(PAn)
-dev.off()
-
-
-png("PAln 2d.png",width = 400, height = 400)
-print(PAln)
-dev.off()
+# png("PArn 2d.png",width = 400, height = 400)
+# print(PAn)
+# dev.off()
+# 
+# 
+# png("PAln 2d.png",width = 400, height = 400)
+# print(PAln)
+# dev.off()
 
 #### R ####
 
@@ -797,7 +890,7 @@ summary_full <-
     cbind(var = "c. lrL", as.data.frame( tidy(Llme1,conf.int=TRUE,effects="fixed"))[,-4]),
     cbind(var = "d. lrV", as.data.frame( tidy(Vlme1,conf.int=TRUE,effects="fixed"))[,-4]),
     cbind(var = "e. lrW", as.data.frame( tidy(Wlme1,conf.int=TRUE,effects="fixed"))[,-4]),
-    cbind(var = "f. lrPAl", as.data.frame( tidy(PAlme1,conf.int=TRUE,effects="fixed"))[,-4]),
+    cbind(var = "f. lrPA", as.data.frame( tidy(PAlme1,conf.int=TRUE,effects="fixed"))[,-4]),
     cbind(var = "g. lrC", as.data.frame( tidy(Clme1,conf.int=TRUE,effects="fixed"))[,-4]),
     cbind(var = "h. lrR", as.data.frame( tidy(Rlme1,conf.int=TRUE,effects="fixed"))[,-4]),
     cbind(var = "i. lrF", as.data.frame( tidy(Flme1,conf.int=TRUE,effects="fixed"))[,-4]),
@@ -873,7 +966,7 @@ ggplot()+
         axis.text = element_text(size = 12), axis.title = element_text(size = 15))+
   themeRN
 
-## fig. SM9
+## fig. SM10
 ggsave("figs/summary_full_estim.png", width =28, height = 23, units ="cm",  dpi = 300)
 
 
@@ -885,7 +978,7 @@ summary_sel <-
     cbind(var = "c. lrL", as.data.frame( tidy(Llmes,conf.int=TRUE,effects="fixed"))[,-4]),
     cbind(var = "d. lrV", as.data.frame( tidy(Vlmes,conf.int=TRUE,effects="fixed"))[,-4]),
     cbind(var = "e. lrW", as.data.frame( tidy(Wlmes,conf.int=TRUE,effects="fixed"))[,-4]),
-    cbind(var = "f. lrPAl", as.data.frame( tidy(PAlmes,conf.int=TRUE,effects="fixed"))[,-4]),
+    cbind(var = "f. lrPA", as.data.frame( tidy(PAlmes,conf.int=TRUE,effects="fixed"))[,-4]),
     cbind(var = "g. lrC", as.data.frame( tidy(Clmes,conf.int=TRUE,effects="fixed"))[,-4]),
     cbind(var = "h. lrR", as.data.frame( tidy(Rlmes,conf.int=TRUE,effects="fixed"))[,-4]),
     cbind(var = "i. lrF", as.data.frame( tidy(Flmes,conf.int=TRUE,effects="fixed"))[,-4]),
@@ -901,28 +994,28 @@ summary_sel$sig[summary_sel$p.value <= 0.05] <- 1
 summary_sel$Term_order <- order[summary_sel$term]
 summary_sel$Term_labels <- as.character(pairs[summary_sel$Term_order])
 
-ggplot()+
-  geom_pointrange(data=summary_sel[summary_sel$var != "0. mortality" & summary_sel$term != "(Intercept)",],
-                  mapping=aes(y=var, x=estimate, xmin=conf.low, xmax=conf.high, col = factor(sig)), 
-                  position="identity", width=1, size=.5, linewidth=2)+
-  theme_bw() +
-  theme(panel.border=element_blank(), axis.line=element_line(), axis.line.y=element_blank()) +  
-  theme(axis.ticks=element_blank()) +
-  # Dispose of the legend
-  theme(legend.position="none") +
-  xlab("Estimates and confidence intervals") +
-  ylab("Response variable") +
-  scale_colour_manual(values = c("grey70", "navy"), aesthetics = c("colour", "fill"))+
-  facet_wrap(~Term_order, scales = "free_x", labeller = facet_labeller)+
-  # Big bold line at y=0
-  geom_vline(xintercept=0,size=1, alpha=0.3, linetype="dashed")+
-  themeRN
+# ggplot()+
+#   geom_pointrange(data=summary_sel[summary_sel$var != "0. mortality" & summary_sel$term != "(Intercept)",],
+#                   mapping=aes(y=var, x=estimate, xmin=conf.low, xmax=conf.high, col = factor(sig)), 
+#                   position="identity", width=1, size=.5, linewidth=2)+
+#   theme_bw() +
+#   theme(panel.border=element_blank(), axis.line=element_line(), axis.line.y=element_blank()) +  
+#   theme(axis.ticks=element_blank()) +
+#   # Dispose of the legend
+#   theme(legend.position="none") +
+#   xlab("Estimates and confidence intervals") +
+#   ylab("Response variable") +
+#   scale_colour_manual(values = c("grey70", "navy"), aesthetics = c("colour", "fill"))+
+#   facet_wrap(~Term_order, scales = "free_x", labeller = facet_labeller)+
+#   # Big bold line at y=0
+#   geom_vline(xintercept=0,size=1, alpha=0.3, linetype="dashed")+
+#   themeRN
 
 ggplot()+
   geom_linerange(data=summary_sel[summary_sel$var != "0. mortality" & summary_sel$term != "(Intercept)",],
-                 mapping=aes(y=reorder(var, desc(var)), xmin=conf.low, xmax=conf.high), size = 3, col = "grey80")+
+                 mapping=aes(y=reorder(var, desc(var)), xmin=conf.low, xmax=conf.high), size = 2, col = "grey80")+
   geom_point(data=summary_sel[summary_sel$var != "0. mortality" & summary_sel$term != "(Intercept)",],
-             mapping=aes(y=reorder(var, desc(var)), x=estimate, col = factor(sig)), size = 4)+
+             mapping=aes(y=reorder(var, desc(var)), x=estimate, col = factor(sig)), size = 3)+
   xlab("Estimates with 95% confidence intervals") +
   ylab("Response variable/n") +
   scale_colour_manual(values = c("grey60", "grey20"))+
@@ -931,14 +1024,13 @@ ggplot()+
   geom_vline(xintercept=0,size=1, alpha=0.3, linetype="dashed")+
   theme_minimal() +
   labs(y= "Response variable")+
-  theme(panel.grid = element_blank(),strip.text.x = element_text(size = 14), panel.grid.major.y = element_line(colour="grey90", size=0.5),legend.position="none", 
-        axis.text = element_text(size = 12), axis.title = element_text(size = 15))
+  theme(panel.grid = element_blank(),strip.text.x = element_text(size = 12), panel.grid.major.y = element_line(colour="grey90", size=0.5),legend.position="none", 
+        axis.text = element_text(size = 11), axis.title = element_text(size = 12))
 ## fig. 4
-ggsave("figs/summary_sel_estim.png", width =20, height = 15, units ="cm",  dpi = 300)
+ggsave("figs/Figure4.pdf", width =16, height = 13, units ="cm",  dpi = 330)
 
 #####PCA figures ####
 
-##fig 3.c
 PCA_sel <- rbind(cbind(var = "deltaPCA", 
                              as.data.frame( tidy(PCAlmes,conf.int=TRUE,effects="fixed"))[,-1]))
 PCA_sel$Term_labels <- c("Intercept", "Genus(P)", "Destination(S)") 
@@ -947,7 +1039,6 @@ order <- c("Origin(S)"="b", "Destination(S)"="c", "Genus(P)"="d",
            "Destination(S):GenusP" = "g", "Genus(P):Destination(S)" = "g",
            "Origin(S):Destination(S):Genus(P)" = "h",
            "Intercept" = "a")
-PCA_full$Term_order <- order[mortality_full$term]
 PCA_sel$Term_order <- order[PCA_sel$Term_labels]
 PCA_sel$sig <- 0
 PCA_sel$sig[PCA_sel$p.value <= 0.05] <- 1
@@ -973,6 +1064,7 @@ print(PCA_sel_f)
 dev.off()
 
 ## direction
+##fig 3.c
 PCA_dir_sel <- rbind(cbind(var = "dirPCA", 
                        as.data.frame( tidy(PCAdmes,conf.int=TRUE,effects="fixed"))[,-1]))
 PCA_dir_sel$Term_labels <- c("Intercept", "Genus(P)", "Destination(S)", "Genus(P):Destination(S)") 
@@ -988,19 +1080,26 @@ PCA_dir_sel$sig[PCA_dir_sel$p.value <= 0.05] <- 1
 
 PCA_dir_sel_f <-ggplot()+
   geom_linerange(data=PCA_dir_sel,
-                 mapping=aes(y=reorder(Term_labels,desc(Term_order)), xmin=conf.low, xmax=conf.high), size = 3, col = "grey80")+
+                 mapping=aes(y=reorder(Term_labels,desc(Term_order)), xmin=conf.low, xmax=conf.high), size = 2, col = "grey80")+
   geom_point(data=PCA_dir_sel,
-             mapping=aes(y=Term_labels, x=estimate), col = "black", size = 4)+
+             mapping=aes(y=Term_labels, x=estimate), col = "black", size = 3)+
   xlab("Estimates with 95% CI") +
   scale_colour_manual(values = c("grey60", "grey20"))+
   # Big bold line at y=0
   geom_vline(xintercept=0,size=1, alpha=0.3, linetype="dashed")+
   theme_minimal() +
-  labs(y= "", title = "dirPCA")+
-  theme(panel.grid = element_blank(),strip.text.x = element_text(size = 18), 
-        panel.grid.major.y = element_line(colour="grey90", size=0.5),legend.position="none", 
-        axis.text = element_text(size = 18), axis.title = element_text(size = 18),axis.title.x = element_blank())+
+  labs(y= "", "dirPCA")+
+  theme(panel.grid = element_blank(),
+        strip.text.x = element_text(size = 10), 
+        panel.grid.major.y = element_line(colour="grey90", size=0.5),
+        legend.position="none", 
+        axis.text.y = element_text(size = 9),
+        axis.text.x = element_text(size =10, angle = 45),
+        axis.title = element_text(size = 11),
+        axis.title.x = element_blank())+
   themeRN
+PCA_dir_sel_f
+
 
 png("figs/PCAdirsel.png",width = 11, height = 6, units = "cm", res = 300)
 print(PCA_dir_sel_f)
@@ -1037,9 +1136,9 @@ ranef.dt <- rbind(ran.dt, ran.sp.dt)
 ggplot(ranef.dt, aes(y=re,x=Species, col = Species)) +
     geom_boxplot()+facet_wrap(~mod, scales = "free_y")
 
-labs <- list('Dlmes' = "a. lrD", 'dlmes' = "b. lrd", 'Llmes' = "c. lrL", 'Vlmes' = "d. lrV",
-             'Wlmes' = "e. lrW", ' PAlmes'  = "f. lrPA", ' Clmes' = "g. lrC", ' Rlmes' = "h. lrR", 
-             'Flmes' = "i. lrF", 'Tlmes' = "l. lrT", ' PCAlmes' = "m. δPCA", ' PCAdmes' = "n. dirPCA")
+labs <- list('Dlmes' = "a\nlrD", 'dlmes' = "b.\nlrd", 'Llmes' = "c.\nlrL", 'Vlmes' = "d.\nlrV",
+             'Wlmes' = "e.\nlrW", ' PAlmes'  = "f.\nlrPA", ' Clmes' = "g.\nlrC", ' Rlmes' = "h.\nlrR", 
+             'Flmes' = "i.\nlrF", 'Tlmes' = "l.\nlrT", ' PCAlmes' = "m.\nδPCA", ' PCAdmes' = "n.\ndirPCA")
 ranef.dt$Term_labels <- as.character(labs[ranef.dt$mod])
 labs2 <- list('gen' = "Genotype", 'sp' = "Species")
 ranef.dt$eff <- as.character(labs2[ranef.dt$eff])
@@ -1098,22 +1197,80 @@ g1 <- ggplot(ranef.dt1, aes(y=re,x=Species, col = Species)) +
 
 g <- ggplot(ranef.dt, aes(y=re,x=Species, col = Species)) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey70")+
-  geom_point() + facet_grid(eff~Term_labels, scales = "free_x") + 
+  geom_point() + 
+  facet_grid(eff~Term_labels, scales = "free_x") + 
   theme_bw()+
   scale_color_viridis_d()+
-  theme(text = element_text(size = 18),
+  theme(text = element_text(size = 12),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.x = element_text(size = 9, vjust = 0.5, angle = 90),
+        axis.text.y = element_text(size = 9),
+        legend.title = element_text(size = 11),
+        legend.text = element_text(size = 10),
+        panel.grid = element_blank(),
+        strip.text = element_text(size = 10, color = "white"),
+        strip.background = element_rect(fill="grey40"),
+        plot.title = element_text(size = 11),
+        legend.position="bottom")
+g
+ggsave("figs/random_eff.pdf", width =16.9, height = 9, units ="cm",  dpi = 330)
+str(ranef.dt)
+ranef.dt$wrap <- 2
+unique(ranef.dt$mod)
+ranef.dt$wrap[ranef.dt$mod == "PAlmes"|
+                ranef.dt$mod == "Wlmes"|
+                ranef.dt$mod == "Vlmes"|
+                ranef.dt$mod == "Llmes"|
+                ranef.dt$mod == "dlmes"|
+                ranef.dt$mod == "PAlmes"|
+                ranef.dt$mod == "Dlmes"] <- 1
+ranef.dt$wrap[ranef.dt$Term_labels == "f.\nlrPA"] <- 1
+
+g1 <- ggplot(ranef.dt[ranef.dt$wrap ==1,], aes(y=re,x=Species, col = Species)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey70")+
+  geom_point() + 
+  facet_grid(eff~Term_labels, scales = "free_x") + 
+  theme_bw()+
+  scale_color_viridis_d()+
+  theme(text = element_text(size = 12),
         axis.title.x = element_blank(),
         axis.title.y = element_blank(),
         axis.text.x = element_text(size = 12, vjust = 0.5, angle = 45),
-        legend.title = element_text(size = 16),
-        legend.text = element_text(size = 14),
+        axis.text.y = element_text(size = 12),
         panel.grid = element_blank(),
-        strip.text = element_text(size = 14, color = "white"),
+        strip.text = element_text(size = 12, color = "white"),
         strip.background = element_rect(fill="grey40"),
-        plot.title = element_text(size = 16),
-        legend.position="bottom")
-g
-ggsave("figs/random_eff.png", width =33, height = 11, units ="cm",  dpi = 300)
+        legend.position="none")
+g1
+ggsave("figs/random_eff1.pdf", width =16.9, height = 9, units ="cm",  dpi = 330)
+
+g2 <- ggplot(ranef.dt[ranef.dt$wrap ==2,], aes(y=re,x=Species, col = Species)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey70")+
+  geom_point() + 
+  facet_grid(eff~Term_labels, scales = "free_x") + 
+  theme_bw()+
+  scale_color_viridis_d()+
+  theme(text = element_text(size = 12),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.x = element_text(size = 12, vjust = 0.5, angle = 45),
+        axis.text.y = element_text(size = 12),
+        panel.grid = element_blank(),
+        strip.text = element_text(size = 12, color = "white"),
+        strip.background = element_rect(fill="grey40"),
+        legend.position="none")
+g2
+ggsave("figs/random_eff2.pdf", width =16.9, height = 9, units ="cm",  dpi = 330)
+
+pdf("figs/Figure5.pdf",width = 6.6, height = 6.4)
+#Fig2 <- 
+grid.arrange(
+  grobs = list(g1,g2),
+  widths = 1,
+  layout_matrix = rbind(1,2)
+)
+dev.off()
 
 ran.dt.full <- data.frame()
 labs <- c("Dlme1","dlme1","Llme1"," Clme1"," Rlme1","Tlme1"," PCAlme1", "Vlme1","Wlme1"," PAlme1","Flme1")
@@ -1212,9 +1369,10 @@ str(data_long)
 dataPCA <- data_long[data_long$var == "dirPCA",]
 str(dataPCA)
 
+#Fig. 3c
 PCA_int <- ggplot(data=dataPCA)+
-  geom_boxplot(aes(fill=Destination, x=gen_lab, col = Destination, y=value),outlier.shape = NA, width = .4, alpha = .4, size = 1.3)+
-  geom_point(aes(col=Destination, x=gen_lab, y=value), binaxis='y', size =1.1, stackdir='center',
+  geom_boxplot(aes(fill=Destination, x=gen_lab, col = Destination, y=value),outlier.shape = NA, width = .4, alpha = .4, size = 1)+
+  geom_point(aes(col=Destination, x=gen_lab, y=value), binaxis='y', size =.7, stackdir='center',
              position=position_jitterdodge(jitter.width = .2,
                                            jitter.height = 0,
                                            dodge.width =.4))+
@@ -1222,18 +1380,20 @@ PCA_int <- ggplot(data=dataPCA)+
   scale_fill_manual(values = cols)+
   scale_colour_manual(values = cols)+
   ylab("direction PCA")+
-  theme(text = element_text(size = 18),
+  theme(text = element_text(size = 14),
         axis.title.x = element_blank(),
-        axis.title.y = element_text(size = 18),
+        axis.title.y = element_text(size = 14),
         axis.text.x = element_text(vjust = 0.5, face = "italic"),
-        legend.title = element_text(size = 16),
-        legend.text = element_text(size = 14),
+        legend.position = "none",
+        legend.text = element_text(size = 12),
         panel.grid = element_blank(),
-        strip.text = element_text(size = 16, color = "white"),
+        strip.text = element_text(size =13, color = "white"),
         strip.background = element_rect(fill="grey40"),
-        plot.title = element_text(size = 16))
-ggsave("PCAint.png", width =15, height = 7, units ="cm",  dpi = 300)
-png("figs/PCAint.png",width = 15, height = 6, units = "cm", res = 300)
+        plot.title = element_text(size = 13))
+
+
+#ggsave("PCAint.png", width =15, height = 7, units ="cm",  dpi = 300)
+#png("figs/PCAint.png",width = 15, height = 6, units = "cm", res = 300)
 print(PCA_int)
 dev.off()
 

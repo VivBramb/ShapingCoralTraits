@@ -139,7 +139,7 @@ dim2dPA$lrTl<-dim2dPA$lrT
 plot(dim2dPA$lrTl~dim2dPA$Species)
 
 #write data
-#write.csv(dim2dPA, "output/dim2dPA.csv", h = TRUE)
+#write.csv(dim2dPA, "output/dim2dPA.csv")
 
 #### PCA ####
 
@@ -290,11 +290,10 @@ dim2dPA[120,]
 PCAdf[120+217,]
 PCAdf[120,]
 dim2dPA$deltaPCAl <- log10(dim2dPA$deltaPCA)
-(-0.407345 -(-1.219634))/(-1.397566+1.45699)
-atan(15)
 
 hist(dim2dPA$deltaPCAl)
 hist(dim2dPA$deltaPCA)
 
 # overwrite df to include pca data 
 # write.csv(dim2dPA, "output/dim2dPA.csv")
+

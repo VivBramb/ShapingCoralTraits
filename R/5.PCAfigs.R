@@ -2,7 +2,7 @@
 library(ggplot2)
 
 ###screeplot ####
-PCA2 <- prcomp(trait[,20:29], center = T, scale. = T)
+PCA2 <- prcomp(trait[,20:29], center = TRUE, scale = TRUE)
 var_explained = PCA2$sdev^2 / sum(PCA2$sdev^2)
 variance <- as.data.frame(cbind(PC = c(1:length(var_explained)),var_explained))
 
@@ -136,7 +136,7 @@ PCAtime <- ggplot(data = PlotDat, aes(x =PC1,y=PC2,colour= Species,fill = Specie
   geom_text(data = TextT, #Loading variable text labels
             aes(x = PC1, y = PC2, label = VarsT),
             inherit.aes = FALSE,
-            size = 5,
+            size = 4,
             parse = TRUE) +
   geom_hline(yintercept = 0, linetype = "dotted", colour = "grey31") + #horizontal reference line
   geom_vline(xintercept = 0, linetype = "dotted", colour = "grey31") + #verticalreference line
@@ -145,20 +145,20 @@ PCAtime <- ggplot(data = PlotDat, aes(x =PC1,y=PC2,colour= Species,fill = Specie
   coord_cartesian(xlim = c(-5,11), ylim = c(-5,5)) +
   themeRN+
   theme(
-    text = element_text(size = 13),
-    axis.title.x = element_text(size = 13),
-    axis.title.y = element_text(size = 13),
-    axis.text = element_text(size = 12),
+    text = element_text(size = 10),
+    axis.title.x = element_text(size = 10),
+    axis.title.y = element_text(size = 10),
+    axis.text = element_text(size = 11),
     axis.text.x = element_text(vjust = 0.5),
-    legend.title = element_text(size = 14),
-    legend.text = element_text(size = 13),
+    legend.title = element_text(size = 11),
+    legend.text = element_text(size = 10),
     panel.grid = element_blank(),
     strip.background = element_rect(fill = "gray40"),
-    strip.text = element_text(size = 12, colour = "white"),
+    strip.text = element_text(size = 10, colour = "white"),
     legend.position = c(.95, .95),
     legend.justification = c("right", "top"),
     legend.box.just = "right",
-    legend.margin = margin(6, 6, 6, 6)
+    legend.margin = margin(2, 2, 2, 2)
   )
 
 PCAtime
@@ -191,33 +191,55 @@ chpr <- convex.hull(trpr)
 chpr <- as.data.frame(cbind(PC1 = c(chpr$x), PC2 = c(chpr$y)))
 
 
+tradd <-tri.mesh(PlotDat[PlotDat$Species == "AD" & PlotDat$Destination == "D" & PlotDat$time == "t1",1],
+                 PlotDat[PlotDat$Species == "AD" & PlotDat$Destination == "D" & PlotDat$time == "t1",2])
+chadd <- convex.hull(tradd)
+chadd <- as.data.frame(cbind(PC1 = c(chadd$x), PC2 = c(chadd$y)))
+tramd <-tri.mesh(PlotDat[PlotDat$Species == "AM" & PlotDat$Destination == "D" & PlotDat$time == "t1",1],
+                 PlotDat[PlotDat$Species == "AM" & PlotDat$Destination == "D" & PlotDat$time == "t1",2])
+chamd <- convex.hull(tramd)
+chamd <- as.data.frame(cbind(PC1 = c(chamd$x), PC2 = c(chamd$y)))
+trpcd <-tri.mesh(PlotDat[PlotDat$Species == "PC" & PlotDat$Destination == "D" & PlotDat$time == "t1",1],
+                 PlotDat[PlotDat$Species == "PC" & PlotDat$Destination == "D" & PlotDat$time == "t1",2])
+chpcd <- convex.hull(trpcd)
+chpcd <- as.data.frame(cbind(PC1 = c(chpcd$x), PC2 = c(chpcd$y)))
+trprd <-tri.mesh(PlotDat[PlotDat$Species == "PR" & PlotDat$Destination == "D" & PlotDat$time == "t1",1],
+                 PlotDat[PlotDat$Species == "PR" & PlotDat$Destination == "D" & PlotDat$time == "t1",2])
+chprd <- convex.hull(trprd)
+chprd <- as.data.frame(cbind(PC1 = c(chprd$x), PC2 = c(chprd$y)))
+
+
+
 segma <- PlotDat[1:217,c(1:2,11:14)]
 segmb <- PlotDat[218:434,c(1:2)]
 colnames(segmb) <- c("PC1f", "PC2f")
 segm <- cbind(segma,segmb)
 
-PCAsegm <- ggplot(data = PlotDat, aes(x =PC1,y=PC2,fill = Species)) + #ggplot set up
+PCAsegm <- ggplot(data = PlotDat, aes(x =PC1,y=PC2,l = Species)) + #ggplot set up
   geom_hline(yintercept = 0, linetype = "dotted", colour = "grey31") + #horizontal reference line
   geom_vline(xintercept = 0, linetype = "dotted", colour = "grey31") + #verticalreference line
-  geom_point(shape = 21, size = 2,alpha = 0.8, col = NA) + #Scatter plot of observed PC1 and 2
-  geom_polygon(data = ch0d, aes(x =PC1,y=PC2),col = "black",fill = "grey",
-               inherit.aes = FALSE,
-               alpha = .3, show.legend = FALSE)+
-  geom_polygon(data = ch1d, aes(x =PC1,y=PC2), col = "black",fill = "grey",
-               inherit.aes = FALSE,
-               alpha = .3, show.legend = FALSE)+
-  geom_segment(data = segm, aes(x =PC1,y=PC2, xend = PC1f, yend = PC2f, col = Species), alpha = .5, size = 1.2)+
-  # geom_polygon(data = chad, aes(x =PC1,y=PC2),col = NA,fill = "#440154FF",
-  #              inherit.aes = F,
+ # geom_point(size = 2, alpha = 0.8, aes(col = Species)) + #Scatter plot of observed PC1 and 2
+  # geom_polygon(data = ch0d, aes(x =PC1,y=PC2),col = "black",fill = "grey",
+  #              inherit.aes = FALSE,
   #              alpha = .3, show.legend = FALSE)+
-  # geom_polygon(data = cham, aes(x =PC1,y=PC2), col = NA,fill = "#31688EFF",
-  #              inherit.aes = F,
+  # geom_polygon(data = ch1d, aes(x =PC1,y=PC2), col = "black",fill = "grey",
+  #              inherit.aes = FALSE,
   #              alpha = .3, show.legend = FALSE)+
-  # geom_polygon(data = chpc, aes(x =PC1,y=PC2),col = NA,fill = "#35B779FF",
-  #              inherit.aes = F,
-  #              alpha = .3, show.legend = FALSE)+
-  # geom_polygon(data = chpr, aes(x =PC1,y=PC2), col = NA,fill = "#FDE725FF",
-  #              inherit.aes = F,
+  geom_segment(data = segm, size = .7, aes(x =PC1,y=PC2, xend = PC1f, yend = PC2f, col = Species), 
+               arrow = arrow(length = unit(0.04, "npc")),
+               lineend = "round", linejoin = "round",
+                alpha = .5)+
+# geom_polygon(data = chadd, aes(x =PC1,y=PC2),col = NA,fill = "#440154FF",
+#              inherit.aes = F,
+#              alpha = .3, show.legend = FALSE)+
+# geom_polygon(data = chamd, aes(x =PC1,y=PC2), col = NA,fill = "#31688EFF",
+#              inherit.aes = F,
+#              alpha = .3, show.legend = FALSE)+
+# geom_polygon(data = chpcd, aes(x =PC1,y=PC2),col = NA,fill = "#35B779FF",
+#              inherit.aes = F,
+#              alpha = .3, show.legend = FALSE)+
+# geom_polygon(data = chprd, aes(x =PC1,y=PC2), col = NA,fill = "#FDE725FF",
+#              inherit.aes = F,
 #              alpha = .3, show.legend = FALSE)+
 scale_fill_viridis_d() + #set pallete colours
   scale_color_viridis_d() +  #set pallete colours
@@ -228,16 +250,16 @@ scale_fill_viridis_d() + #set pallete colours
   facet_grid(Destination~Origin,
              labeller = labeller(Origin = Origin.labs, Destination = Destination.labs))+
   theme(
-    text = element_text(size = 13),
-    axis.title.x = element_text(size = 13),
-    axis.title.y = element_text(size = 13),
-    axis.text = element_text(size = 12),
+    text = element_text(size = 10),
+    axis.title.x = element_text(size = 11),
+    axis.title.y = element_text(size = 11),
+    axis.text = element_text(size = 10),
     axis.text.x = element_text(vjust = 0.5),
-    legend.title = element_text(size = 14),
-    legend.text = element_text(size = 13),
+    legend.title = element_text(size = 11),
+    legend.text = element_text(size = 11),
     panel.grid = element_blank(),
     strip.background = element_rect(fill = "gray40"),
-    strip.text = element_text(size = 12, colour = "white"),
+    strip.text = element_text(size = 10, colour = "white"),
     legend.position = "none",
     legend.margin = margin(6, 6, 6, 6)
   )
@@ -245,10 +267,38 @@ scale_fill_viridis_d() + #set pallete colours
 PCAsegm
 
 
-png("figs/PCAsegmhor.png",
-    width = 700, height = 300)
-ggarrange(PCAtime, PCAsegm, ncol = 2, nrow = 1)
+#png("figs/PCAsegmhor.png",
+#    width = 700, height = 300)
+ggarrange(PCAtime, PCAsegm, PCA_dir_sel_f,PCA_int, ncol = 2, nrow = 2)
 dev.off()
+
+PCA_dir_sel_f
+PCA_int
+pdf("figs/Figure3.pdf",width = 6.6, height = 6)
+grid.arrange(
+  grobs = list(PCAtime, PCAsegm, PCA_dir_sel_f,PCA_int),
+  widths = c(1,5,1,5,1),
+  layout_matrix = rbind(c(NA, NA, 2, 2, 2),
+                        c(1, 1, 2, 2, 2),
+                        c(1, 1, 2, 2, 2),
+                        c(1, 1, 2, 2, 2),
+                        c(1, 1, 2, 2, 2),
+                        c(1, 1, 2, 2, 2),
+                        c(1, 1, 2, 2, 2),
+                        c(1, 1, 2, 2, 2),
+                        c(1, 1, 2, 2, 2),
+                        c(1, 1, 2, 2, 2),
+                        c(1, 1, 2, 2, 2),
+                        c(NA,NA,NA,NA,NA),
+                        c(3,3,NA,4,NA),
+                        c(3,3,NA,4,NA),
+                        c(3,3,NA,4,NA),
+                        c(3,3,NA,4,NA),
+                        c(3,3,NA,4,NA),
+                        c(3,3,NA,4,NA))
+)
+dev.off()
+
 
 
 
