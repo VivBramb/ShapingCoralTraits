@@ -434,7 +434,8 @@ dev.off()
 
 
 
-####trait model selection ####
+#### traits model selection ####
+
 ### D ####
 #step 1:lm
 
@@ -773,7 +774,7 @@ T$AICs[T$AICs$AIC == min(T$AICs$AIC), ]
 Tlmes <- T$m10
 
 
-### fit PCA model ####
+### deltaPCA ####
 #step 1:lm
 PCAlm <- gls(data = dim2dPA, deltaPCAl ~ Origin*Destination*Genus)
 PCAlme1 <- lme(data = dim2dPA, deltaPCAl ~ Origin*Destination*Genus, 
@@ -801,7 +802,7 @@ PCA <- get_AICs(data, response, random)
 PCA$AICs[PCA$AICs$AIC == min(PCA$AICs$AIC), ]
 PCAlmes <-PCA$m15
 
-### fit PCA direction model ####
+### dirPCA ####
 #step 1:lm
 PCAdm <- gls(data = dim2dPA, dirPCA ~ Origin*Destination*Genus)
 PCAdme1 <- lme(data = dim2dPA, dirPCA ~ Origin*Destination*Genus, 
@@ -831,7 +832,7 @@ PCAdmes <- PCAd$m10
 
 
 
-#### model summary and figures ####
+#### model summary tables ####
 stargazer(Dlmes,dlmes,Llmes,Vlmes,Wlmes, PAlmes, Clmes, Rlmes,Flmes,Tlmes, PCAlmes,PCAdmes,
           type = "html",title="Results -selected fixed and random effect", align=TRUE, out="models_fixed_noNesting.html", omit.stat=c("LL","bic"),
           column.labels = c("lrD", "lrd","lrL", "lrV","lrW", "lrPA","lrC", "lrR","lrF", "lrT","deltaPCA","dirPCA"), model.numbers = FALSE, 
@@ -852,7 +853,7 @@ stargazer( Clme1, Rlme1,Flme1,Tlme1, PCAlme1,PCAdme1,
           omit.stat=c("LL","bic"), model.numbers = FALSE, 
           star.cutoffs = 0.05/8, notes = "*p<0.05", ci = TRUE,  notes.append = FALSE)
 
-
+#### full models figure SM ####
 p.adj <- as.data.frame(
   rbind(
     c("mortality", p.adjust(summary(mlme1)$coefficients[, 4], method = "bonferroni", n = 8)),
@@ -889,7 +890,6 @@ p.adj.holm <-as.data.frame(
   )
 )
 
-
 summary_full <-
   rbind(
     cbind(var = "0. mortality", as.data.frame( tidy(mlme1,conf.int=TRUE,effects="fixed"))[,-1]),
@@ -906,15 +906,11 @@ summary_full <-
     cbind(var = "m. deltaPCA", as.data.frame( tidy(PCAlme1,conf.int=TRUE,effects="fixed"))[,-4]),
     cbind(var = "n. dirPCA", as.data.frame( tidy(PCAdme1,conf.int=TRUE,effects="fixed"))[,-4]))
 
-
 summary_full$sig <- 0
 summary_full$sig[summary_full$p.value <= 0.05] <- 1
-
 summary_full$sigcor <- 0
 summary_full$sigcor[summary_full$p.value*8 <= 0.05] <- 1
 summary_full$int <- 0
-
-
 
 order <- c("OriginS"="b", "DestinationS"="c", "GenusP"="d", 
            "OriginS:DestinationS"="e", "OriginS:GenusP"="f",
@@ -928,7 +924,6 @@ labs <- list('b'="Origin(S)", 'c'="Destination(S)", 'd'="Genus(P)",
            'g' = "Destination(S):Genus(P)",'g' = "Genus(P):Destination(S)",
            'h' = "Origin(S):Destination(S):Genus(P)",
            'a'= "Intercept")
-
 summary_full$Term_labels <- as.character(pairs[summary_full$Term_order])
 
 summary_full$int[summary_full$term == "OriginS"| summary_full$term == "DestinationS"| summary_full$term == "GenusP"] <- 1
@@ -977,7 +972,7 @@ ggplot()+
 ## fig. SM10
 ggsave("figs/summary_full_estim.png", width =28, height = 23, units ="cm",  dpi = 300)
 
-
+#### selected models figure ####
 summary_sel <-
   rbind(
 #    cbind(var = "0. mortality", as.data.frame( tidy(mglme,conf.int=TRUE,effects="fixed"))[,-1]),
@@ -994,10 +989,8 @@ summary_sel <-
     cbind(var = "m. deltaPCA", as.data.frame( tidy(PCAlmes,conf.int=TRUE,effects="fixed"))[,-4]),
     cbind(var = "n. dirPCA", as.data.frame( tidy(PCAdmes,conf.int=TRUE,effects="fixed"))[,-4]))
 
-
 summary_sel$sig <- 0
 summary_sel$sig[summary_sel$p.value <= 0.05] <- 1
-
 
 summary_sel$Term_order <- order[summary_sel$term]
 summary_sel$Term_labels <- as.character(pairs[summary_sel$Term_order])
@@ -1071,7 +1064,7 @@ png("figs/PCAsel.png",width = 11, height = 6, units = "cm", res = 300)
 print(PCA_sel_f)
 dev.off()
 
-## direction
+## direction PCA figure 3c ####
 ##fig 3.c
 PCA_dir_sel <- rbind(cbind(var = "dirPCA", 
                        as.data.frame( tidy(PCAdmes,conf.int=TRUE,effects="fixed"))[,-1]))
@@ -1108,13 +1101,12 @@ PCA_dir_sel_f <-ggplot()+
   themeRN
 PCA_dir_sel_f
 
-
-png("figs/PCAdirsel.png",width = 11, height = 6, units = "cm", res = 300)
+#png("figs/PCAdirsel.png",width = 11, height = 6, units = "cm", res = 300)
 print(PCA_dir_sel_f)
 dev.off()
 
 #### random effects - fig 5 #####
-
+#create dataframe
 ran.dt <- data.frame()
 ran.sp.dt<- data.frame()
 labs2 <- c("Dlmes","dlmes","Llmes"," Clmes"," Rlmes","Tlmes"," PCAlmes", " PCAdmes")
@@ -1131,8 +1123,6 @@ for (i in 1:4) {
   colnames(re) <- "re"
   ran.dt <- rbind(cbind(mod = labs1[i], eff = "gen",re, Species = str_sub(row.names(re),start = 3, end = 4)),ran.dt)
 }
-
-
 for (i in 1:8) {
   re <- as.data.frame(ranef(mods2[[i]])$Species)
   colnames(re) <- "re"
@@ -1154,54 +1144,54 @@ ranef.dt$eff <- as.character(labs2[ranef.dt$eff])
 ranef.dt1 <- ranef.dt[ranef.dt$mod == "Vlmes"|ranef.dt$mod == "Wlmes"|ranef.dt$mod == " PAlmes"|ranef.dt$mod == "Flmes",]
 ranef.dt2 <- ranef.dt[ranef.dt$mod != "Vlmes" & ranef.dt$mod != "Wlmes" & ranef.dt$mod != " PAlmes" & ranef.dt$mod != "Flmes",]
 
-g1 <- ggplot(ranef.dt1, aes(y=re,x=Species, col = Species)) +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "grey70")+
-  geom_point() + facet_grid(eff~Term_labels, scales = "free_x") + 
-  theme_bw()+
-  scale_color_viridis_d()+
-  theme(text = element_text(size = 18),
-        axis.title.x = element_blank(),
-        axis.title.y = element_blank(),
-        axis.text.x = element_text(size = 12, vjust = 0.5, angle = 45),
-        legend.title = element_text(size = 16),
-        legend.text = element_text(size = 14),
-        panel.grid = element_blank(),
-        strip.text = element_text(size = 16, color = "white"),
-        strip.background = element_rect(fill="grey40"),
-        plot.title = element_text(size = 16),
-        legend.position="bottom")
-g2 <-ggplot(ranef.dt2, aes(y=re,x=Species, col = Species)) +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "grey70")+
-  geom_point() + facet_grid(eff~Term_labels, scales = "free_x") + 
-  theme_bw()+
-  scale_color_viridis_d()+
-  theme(text = element_text(size = 18),
-        axis.title.x = element_blank(),
-        axis.title.y = element_blank(),
-        axis.text.x = element_text(size = 12, vjust = 0.5, angle = 45),
-        legend.title = element_text(size = 16),
-        legend.text = element_text(size = 14),
-        panel.grid = element_blank(),
-        strip.text = element_text(size = 16, color = "white"),
-        strip.background = element_rect(fill="grey40"),
-        plot.title = element_text(size = 16),
-        legend.position="bottom")
-g1 <- ggplot(ranef.dt1, aes(y=re,x=Species, col = Species)) +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "grey70")+
-  geom_point() + facet_grid(eff~Term_labels, scales = "free_x") + 
-  theme_bw()+
-  scale_color_viridis_d()+
-  theme(text = element_text(size = 18),
-        axis.title.x = element_blank(),
-        axis.title.y = element_blank(),
-        axis.text.x = element_text(size = 12, vjust = 0.5, angle = 45),
-        legend.title = element_text(size = 16),
-        legend.text = element_text(size = 14),
-        panel.grid = element_blank(),
-        strip.text = element_text(size = 16, color = "white"),
-        strip.background = element_rect(fill="grey40"),
-        plot.title = element_text(size = 16),
-        legend.position="bottom")
+# g1 <- ggplot(ranef.dt1, aes(y=re,x=Species, col = Species)) +
+#   geom_hline(yintercept = 0, linetype = "dashed", color = "grey70")+
+#   geom_point() + facet_grid(eff~Term_labels, scales = "free_x") + 
+#   theme_bw()+
+#   scale_color_viridis_d()+
+#   theme(text = element_text(size = 18),
+#         axis.title.x = element_blank(),
+#         axis.title.y = element_blank(),
+#         axis.text.x = element_text(size = 12, vjust = 0.5, angle = 45),
+#         legend.title = element_text(size = 16),
+#         legend.text = element_text(size = 14),
+#         panel.grid = element_blank(),
+#         strip.text = element_text(size = 16, color = "white"),
+#         strip.background = element_rect(fill="grey40"),
+#         plot.title = element_text(size = 16),
+#         legend.position="bottom")
+# g2 <-ggplot(ranef.dt2, aes(y=re,x=Species, col = Species)) +
+#   geom_hline(yintercept = 0, linetype = "dashed", color = "grey70")+
+#   geom_point() + facet_grid(eff~Term_labels, scales = "free_x") + 
+#   theme_bw()+
+#   scale_color_viridis_d()+
+#   theme(text = element_text(size = 18),
+#         axis.title.x = element_blank(),
+#         axis.title.y = element_blank(),
+#         axis.text.x = element_text(size = 12, vjust = 0.5, angle = 45),
+#         legend.title = element_text(size = 16),
+#         legend.text = element_text(size = 14),
+#         panel.grid = element_blank(),
+#         strip.text = element_text(size = 16, color = "white"),
+#         strip.background = element_rect(fill="grey40"),
+#         plot.title = element_text(size = 16),
+#         legend.position="bottom")
+# g1 <- ggplot(ranef.dt1, aes(y=re,x=Species, col = Species)) +
+#   geom_hline(yintercept = 0, linetype = "dashed", color = "grey70")+
+#   geom_point() + facet_grid(eff~Term_labels, scales = "free_x") + 
+#   theme_bw()+
+#   scale_color_viridis_d()+
+#   theme(text = element_text(size = 18),
+#         axis.title.x = element_blank(),
+#         axis.title.y = element_blank(),
+#         axis.text.x = element_text(size = 12, vjust = 0.5, angle = 45),
+#         legend.title = element_text(size = 16),
+#         legend.text = element_text(size = 14),
+#         panel.grid = element_blank(),
+#         strip.text = element_text(size = 16, color = "white"),
+#         strip.background = element_rect(fill="grey40"),
+#         plot.title = element_text(size = 16),
+#         legend.position="bottom")
 
 g <- ggplot(ranef.dt, aes(y=re,x=Species, col = Species)) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey70")+
@@ -1222,7 +1212,8 @@ g <- ggplot(ranef.dt, aes(y=re,x=Species, col = Species)) +
         plot.title = element_text(size = 11),
         legend.position="bottom")
 g
-ggsave("figs/random_eff.pdf", width =16.9, height = 9, units ="cm",  dpi = 330)
+#ggsave("figs/random_eff.pdf", width =16.9, height = 9, units ="cm",  dpi = 330)
+# split g in 2 rows
 str(ranef.dt)
 ranef.dt$wrap <- 2
 unique(ranef.dt$mod)
@@ -1280,25 +1271,26 @@ grid.arrange(
 )
 dev.off()
 
-ran.dt.full <- data.frame()
-labs <- c("Dlme1","dlme1","Llme1"," Clme1"," Rlme1","Tlme1"," PCAlme1", "Vlme1","Wlme1"," PAlme1","Flme1")
-mods <- list(Dlme1,dlme1,Llme1,Clme1, Rlme1,Tlme1, PCAlme1, Vlme1,Wlme1, PAlme1,Flme1)
+# # check full model 
+# ran.dt.full <- data.frame()
+# labs <- c("Dlme1","dlme1","Llme1"," Clme1"," Rlme1","Tlme1"," PCAlme1", "Vlme1","Wlme1"," PAlme1","Flme1")
+# mods <- list(Dlme1,dlme1,Llme1,Clme1, Rlme1,Tlme1, PCAlme1, Vlme1,Wlme1, PAlme1,Flme1)
+# 
+# for (i in 1:11) {
+#   re <- as.data.frame(ranef(mods[[i]])$sourceGen)
+#   colnames(re) <- "re"
+#   ran.dt.full <- rbind(cbind(mod = labs[i], eff = "gen",re, Species = str_sub(row.names(re),start = 1, end = 2)),ran.dt.full)
+# }
+# for (i in 1:11) {
+#   re <- as.data.frame(ranef(mods[[i]])$Species)
+#   colnames(re) <- "re"
+#   ran.dt.full <- rbind(cbind(mod = labs[i], eff = "sp",re, Species = row.names(re)),ran.dt.full)
+# }
+# 
+# ggplot(ran.dt.full, aes(y=re,x=eff, col = Species)) +
+#   geom_boxplot()+facet_wrap(~mod, scales = "free")
 
-for (i in 1:11) {
-  re <- as.data.frame(ranef(mods[[i]])$sourceGen)
-  colnames(re) <- "re"
-  ran.dt.full <- rbind(cbind(mod = labs[i], eff = "gen",re, Species = str_sub(row.names(re),start = 1, end = 2)),ran.dt.full)
-}
-for (i in 1:11) {
-  re <- as.data.frame(ranef(mods[[i]])$Species)
-  colnames(re) <- "re"
-  ran.dt.full <- rbind(cbind(mod = labs[i], eff = "sp",re, Species = row.names(re)),ran.dt.full)
-}
-
-ggplot(ran.dt.full, aes(y=re,x=eff, col = Species)) +
-  geom_boxplot()+facet_wrap(~mod, scales = "free")
-
-######## AICs table SM 1######
+######## AICs table######
 colnames(D$AICs) <- c("df", "lrD")
 colnames(d$AICs) <- c("df", "lrd")
 colnames(L$AICs) <- c("df", "lrL")
@@ -1319,7 +1311,7 @@ AICs_table
 #write.csv(AICs_table, "output/AICs_table.csv", row.names = TRUE)
 
 
-### figures ####
+### interaction figures for SM ####
 data_long <- as.data.frame(dim2dPA %>%
                              select(lrD,lrd, lrL, lrV,lrW,lrA,lrC,lrR, lrF, lrT, deltaPCA, dirPCA, Genus, Destination) %>%
                              gather(var, value, c("lrD","lrd", "lrL", "lrV","lrW","lrA","lrC","lrR", "lrF", "lrT", "deltaPCA", "dirPCA")))
@@ -1331,7 +1323,6 @@ var_labs <- c("lrD"="a. lrD","lrd" ="b. lrd", "lrL"="c. lrL",
            "deltaPCA"= "m. deltaPCA",
            "dirPCA"= "n. dirPCA")
 data_long$var_lab <- var_labs[data_long$var]
-
 
 # Interactions
 
@@ -1345,7 +1336,6 @@ gen_labs <- c("A"="Acropora sp.","P" ="Porites sp.")
 data_long$gen_lab <- gen_labs[data_long$Genus]
 
 cols <- c("D" = "dodgerblue4", "S" = "cyan3")
-
 
 ggplot(data=data_long)+
   geom_boxplot(aes(fill=Destination, x=gen_lab, col = Destination, y=value),outlier.shape = NA, width = .4, alpha = .4, size = 1.3)+
@@ -1368,10 +1358,9 @@ ggplot(data=data_long)+
         strip.background = element_rect(fill="grey40"),
         plot.title = element_text(size = 16))
 
-
 ggsave("figs/interactions.png", width =25, height = 25, units ="cm",  dpi = 300)
 
-###PCA interaction #####
+### PCA interaction for fig 3 #####
 
 str(data_long)
 dataPCA <- data_long[data_long$var == "dirPCA",]
