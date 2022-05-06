@@ -183,7 +183,7 @@ trait$Rl <- log10(trait$RI)
 # write data
 # write.csv(trait, "output/trait.csv")
 
-### pair plot - Fig SM4
+### pair plot
 
 str(trait)
 dim(trait)
@@ -198,6 +198,8 @@ ggsave(pairs, paste0("D:/Dropbox/My Dropbox/NC-RR_environment_data/outputs/pairs
 paste(pairs)
 dev.off()
 
+
+### Villager ##
 
 qfsE <- quality_funct_space(trait[,20:29], traits_weights=NULL, metric="Euclidean",nbdim = 10, dendro=FALSE, plot="qfs_Euclideanlr") 
 #qfsE2 <- quality_funct_space(trait[,c("Fl","Rl","Ll")], traits_weights=NULL, metric="Euclidean", nbdim = 3,dendro=FALSE, plot="qfs_Euclidean2") 
@@ -247,6 +249,7 @@ fit <- cmdscale(gower,eig=TRUE, k=2) # PCoA
 efit <- envfit(fit, trait["Cl"], na.rm=TRUE) 
 efit <- envfit(fit, trait["Vl"], na.rm=TRUE) 
 
+#check
 
 plot(fd.coord[,1], fd.coord[,2], xlab="PCoA1",main = "Trait space", ylab="PCoA2", type="n")
 polygon(ch, col="grey", border=FALSE)

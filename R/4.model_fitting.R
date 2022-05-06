@@ -1,3 +1,5 @@
+## upload libraries
+
 library(ggplot2)
 library(tidyverse)
 library(stringr)
@@ -258,9 +260,12 @@ fig2b <- ggplot()+
   geom_vline(xintercept=0,size=1, alpha=0.3, linetype="dashed")+
   theme_minimal() +
   themeRN+
-  theme(panel.grid = element_blank(),strip.text.x = element_text(size = 11), 
-        panel.grid.major.y = element_line(colour="grey90", size=0.5),legend.position="none", 
-        axis.text = element_text(size = 10), axis.title = element_text(size = 11),axis.title.x = element_blank(), axis.title.y = element_blank())
+  theme(panel.grid = element_blank(),
+        strip.text.x = element_text(size = 11), 
+        panel.grid.major.y = element_line(colour="grey90", size=0.5),
+        legend.position="none", 
+        axis.text = element_text(size = 10), axis.title = element_text(size = 11),
+        axis.title.y = element_blank())
 
 
 #ggsave("figs/mortality_sel_estim.png", width =11, height = 6, units ="cm",  dpi = 300)
@@ -276,8 +281,9 @@ mort_prob$pred <- predict(mlmes)
 
 ## fig 2c
 fig2c <- ggplot(data=mort_prob)+
-  geom_boxplot(aes(fill=Destination, x=Genus_long, col = Destination, y=pred),outlier.shape = NA, width = .4, alpha = .4, size = 1)+
-  geom_point(aes(col = Destination, x=Genus_long, y=pred), size =0.5,
+  geom_boxplot(aes(fill=Destination, x=Genus_long, col = Destination, y=pred),outlier.shape = NA, 
+               width = .4, alpha = .4, size = 1)+
+  geom_point(aes(col = Destination, x=Genus_long, y=pred), size =0.7,
              position=position_jitterdodge(jitter.width = .2,
                                            jitter.height = 0,
                                            dodge.width =.4))+
@@ -290,12 +296,14 @@ fig2c <- ggplot(data=mort_prob)+
         axis.title.y = element_text(size = 11),
         axis.text.x = element_text(vjust = 0.5, face = "italic", size = 10),
         axis.text.y = element_text(vjust = 0.5, size = 10),
-        legend.title = element_blank(),
-        legend.text = element_blank(),
+        legend.position = "none",
         panel.grid = element_blank(),
         strip.text = element_text(size = 11, color = "white"),
         strip.background = element_rect(fill="grey40"),
         plot.title = element_text(size = 11))
+
+
+
 
 # ggsave("figs/mortality_prob_estim.png", width =15, height = 7, units ="cm",  dpi = 300)
 # 
