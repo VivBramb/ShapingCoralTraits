@@ -4,9 +4,9 @@ Data and code used in "Shaping coral trait: plasticity more than filtering"
 Preprint available at: https://doi.org/10.1101/2021.08.19.456946
 Under revision in MEPS
 
-##Abstract 
+## Abstract 
 The structure of an ecosystem is usually determined by the shape of the organisms that build it, commonly known as ecosystem engineers. Understanding to what extent plasticity and environmental filtering determine variation in ecosystem engineer physical structure is necessary to predict how ecosystem structure may change. Here, we explored coral survival and the plasticity of morphological traits that are critical for habitat provision in coral reefs. We conducted a reciprocal clonal transplant experiment in which branching corals from the genera Porites and Acropora were moved to and from a deep and a shallow site within a lagoon in the Maldives. Survival and trait analyses revealed that transplant destination consistently induced the strongest changes, particularly among Acropora spp. The origin of the corals had only marginal effects on some of the traits. We also detected variation in the way individuals from the same species and site differentiate in their shape, showing that traits linked to habitat provision are phenotypically plastic. The results suggest coral phenotypic plasticity, in the quite common lagoonal conditions studied here, plays a stronger role than environmental filtering, in determining the zonation of coral morphologies, and consequently the habitats they provide for other organisms.
-###Keywords
+### Keywords
 Niche construction, coral reefs, environmental filtering, phenotypic plasticity, geometric ecology
 
 ## File descriptions
