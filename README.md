@@ -16,3 +16,4 @@ Preprint available at: https://doi.org/10.1101/2021.08.19.456946
 - **3.prepare_data_tables.R**: handle data to make tables for model fitting
 - **4.model_fitting.R**:model fitting and selection for each trait and the morphospace + code for relative figures and tables 
 - **5.PCAfigs.R**: code for morphospace figures
+- **response_to_reviewer.R**: code for SM8, which was something we checked upon suggestion of one of the reviewer and decided to include in the revision process
