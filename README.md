@@ -10,7 +10,7 @@ Niche construction, coral reefs, environmental filtering, phenotypic plasticity,
 ### Data
 - **DataSheet_Mal_May18.csv**: table of raw data of measures from the field
 - **env/**: directory with all the environmental data for analysis with **1.environment.R**
-- **nubbin_outlines/**: directory with all the outlines of the nubbins, from which morphological traits are computed with **2.get_PAs.csv**
+- **nubbin_outlines/**: directory with all the outlines of the nubbins, from which morphological traits are computed with **2.get_PAs.R**
 
 ### R
 - **1.environment.R**: analysis of environmental parameters
